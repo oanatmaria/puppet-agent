@@ -171,5 +171,15 @@ test_name 'PA-1319: Validate that the vendored ruby can load gems and is configu
       assert_match(/sqlite3/, listed_gems, "'gem install' failed to build the sqlite3 gem")
     end
   end
+
+  step "'gem update --system' keeps vendor_gems still in path" do
+    agents.each do |agent|
+      on(agent, "/opt/puppetlabs/puppet/bin/gem update --system")
+      list_env = on(agent, "/opt/puppetlabs/puppet/bin/gem env").stdout.chomp
+      unless list_env.include?("/opt/puppetlabs/puppet/lib/ruby/vendor_gems")
+        fail_test("Failed to keep vendor_gems directory in GEM_PATH!")
+      end
+    end
+  end
 end
 
